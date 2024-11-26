@@ -28,6 +28,8 @@ export const UserPutSchema = Type.Object({
     role: Type.Optional(Type.Union([Type.Literal("admin"), Type.Literal("user")])),
 });
 
+export const BlacklistPostSchema = Type.Object({password: Type.String()});
+
 export const UserIdSchema = Type.Object({
     id: Type.Number(),
 }, { $id: 'UserIdSchema' });
@@ -39,3 +41,4 @@ export type UserIdType = Static<typeof UserIdSchema>;
 export type UserType = Static<typeof UserSchema>;
 export type UserPostType = Static<typeof UserPostSchema>;
 export type UserPutType = Static<typeof UserPostSchema>;
+export type BlacklistPostType = Static<typeof BlacklistPostSchema>;

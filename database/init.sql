@@ -2,6 +2,12 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
  --  TABLAS   --
 
+
+CREATE table if not exists blacklist (
+      password text not null
+);
+
+
 CREATE table if not exists users (
     id SERIAL primary key,
     name text not null,
@@ -43,6 +49,26 @@ CREATE TABLE IF NOT EXISTS favorites (
     UNIQUE (user_id, property_id)  -- Para evitar que un usuario tenga favoritos duplicados
 );
 
+
+CREATE table if not exists recomendada (
+      id_recomendacion SERIAL PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      property_id INT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE,
+      FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE, 
+      UNIQUE (user_id, property_id)
+);
+
+CREATE table if not exists recomendacion (
+      id_recomendacion SERIAL PRIMARY KEY,
+      user_id INT NOT NULL,
+      property_id INT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE, 
+      UNIQUE (user_id, property_id)
+);
+
 CREATE TABLE IF NOT EXISTS notificaciones (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -62,8 +88,20 @@ CREATE TABLE IF NOT EXISTS data_source (
 );
 
 
+insert into blacklist (password)
+      values(crypt('@Contraseña123', gen_salt('bf'))),
+            (('@Contraseña1234', gen_salt('bf'))),
+            (('.Contraseña123', gen_salt('bf'))),
+            (('.Contraseña1234', gen_salt('bf'))),
+            (('@Contraseña12', gen_salt('bf'))),
+            (('.Contraseña12', gen_salt('bf'))),
+            (('@Contraseña1', gen_salt('bf'))),
+            (('.Contraseña1', gen_salt('bf')));
+
 insert into users (name, lastname, email, password, role)
     values('Nicolás', 'Márquez', 'nicomars270@gmail.com', crypt('27DEenero2003_', gen_salt('bf')), 'admin'),
+          ('Jorge', 'Melnik', 'jmelnik19@gmail.com', crypt('@Jmelnik19', gen_salt('bf')), 'admin'),
+          ('Nicolas', 'Marquez', 'nicolas@marquez.com', crypt('@MarquezNicolas1', gen_salt('bf')), 'user'),
           ('Martina', 'Guzmán', 'martina14288@gmail.com', crypt('28DEenero2003_', gen_salt('bf')), 'admin'),
           ('Ana', 'Sena', 'anaclarasenanunez@gmail.com', crypt('Ana0411!', gen_salt('bf')), 'admin'),
           ('Juan', 'Pérez', 'juan@correo.com', crypt('28DESeptiembre2024!', gen_salt('bf')), 'user'),

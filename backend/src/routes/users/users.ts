@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify/types/instance.js";
 import { query } from "../../services/database.js";
 import {
   UserIdSchema,
+  UserIdType,
   UserPostSchema,
   UserPostType,
   UserPutSchema,
@@ -16,7 +17,11 @@ import {
   FavoritePostType,
 } from "../../types/schemas/favorite/favoriteSchema.js";
 import { Type } from "@sinclair/typebox";
-import { PropertyGetQuerySchema, PropertyIdSchema } from "../../types/schemas/property/propertySchema.js";
+import {
+  PropertyGetQuerySchema,
+  PropertyIdSchema,
+} from "../../types/schemas/property/propertySchema.js";
+import { RecomendacionPostSchema, RecomendacionPostType, RecomendacionSchema } from "../../types/schemas/recomendacion/recomendacionSchema.js";
 
 const usersRoutes: FastifyPluginAsync = async (
   fastify: FastifyInstance,
@@ -372,6 +377,129 @@ const usersRoutes: FastifyPluginAsync = async (
         return;
       }
       reply.code(204).send({ message: "Favorito eliminado" });
+    },
+  });
+
+  fastify.get("/:id/recomendaciones/recomendacion", {
+    schema: {
+      description: "Obtener las recomendaciones",
+      summary: "Obtener las recomendaciones de un usuario específico",
+      tags: ["recomendaciones"],
+      params: UserIdSchema,
+      response: {
+        200: {
+          description: "Listado de recomendaciones",
+          type: "array",
+          items: PropertyGetQuerySchema,
+        },
+        501: {
+          description: "Recomendaciones del usuario no encontrados",
+          type: "object",
+          properties: {
+            message: { type: "string" },
+          },
+        },
+      },
+    },
+    onRequest: fastify.verifySelfOrAdmin,
+    handler: async function (request, reply) {
+      const { id } = request.params as { id: string };
+      const res = await query(
+        `SELECT p.*
+       FROM recomendada f
+       JOIN properties p ON f.property_id = p.id
+       WHERE f.user_id = $1`,
+        [id]
+      );
+      if (res.rows.length === 0) {
+        reply
+          .status(404)
+          .send({ message: "Recomendaciones del usuario no encontrados" });
+        return;
+      }
+      reply.code(200).send(res.rows);
+    },
+  });
+
+  fastify.post("/:id/recomendaciones/recomendacion", {
+    schema: {
+      description: "Crear una recomendacion",
+      summary: "Crear una recomendacion",
+      tags: ["recomendaciones"],
+      body: RecomendacionPostSchema,
+      params: UserIdSchema,
+      response: {
+        201: {
+          description: "Recomendacion creada",
+          type: "object",
+          properties: RecomendacionSchema.properties,
+        },
+        501: {
+          description: "Error al crear la recomendacion",
+          type: "object",
+          properties: {
+            message: { type: "string" },
+          },
+        },
+      },
+    },
+    onRequest: fastify.verifySelfOrAdmin,
+    handler: async function (request, reply) {
+      const recomendacionPost = request.body as RecomendacionPostType;
+      const params = request.params as UserIdType;
+      const id = params.id;
+      const userEmail = recomendacionPost.email_recomendado;
+      const propertyId = recomendacionPost.property_id;
+      const res = await query(
+        `INSERT INTO recomendada
+                (user_id, user_email, property_id)
+                VALUES ($1, $2, $3)
+                RETURNING id_recomendacion;`,
+        [id, userEmail, propertyId]
+      );
+      if (res.rows.length === 0) {
+        reply.status(401).send({ message: "Error al crear la recomendacion" });
+        return;
+      }
+      reply.code(201).send({ message: "Recomendacion creada" });
+      reply.code(201).send(res.rows[0]);
+    },
+  });
+
+  fastify.delete("/:id/recomendaciones/recomendacion/:property_id", {
+    schema: {
+      description: "Eliminar una recomendacion",
+      summary: "Eliminar una recomendacion de un usuario",
+      tags: ["recomendaciones"],
+      params: Type.Intersect([UserIdSchema, PropertyIdSchema]),
+      response: {
+        204: {
+          description: "Recomendacion eliminada",
+        },
+        404: {
+          description: "Recomendacion no encontrada",
+          type: "object",
+          properties: {
+            message: { type: "string" },
+          },
+        },
+      },
+    },
+    onRequest: fastify.verifySelfOrAdmin,
+    handler: async function (request, reply) {
+      const { id, property_id } = request.params as {
+        id: string;
+        property_id: string;
+      };
+      const res = await query(
+        `DELETE FROM recomendada WHERE user_email= $1 and property_id = $2`,
+        [id, property_id]
+      );
+      if (res.rowCount === 0) {
+        reply.status(404).send({ message: "Recomendacion no encontrada" });
+        return;
+      }
+      reply.code(204).send({ message: "Recomendacion eliminada" });
     },
   });
 };
