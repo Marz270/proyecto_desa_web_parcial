@@ -97,7 +97,10 @@
                 (click)="toggleMenu('dropdown')"
                 aria-haspopup="true"
               >
-                <ion-icon name="person-circle-outline" class="text-2xl"></ion-icon>
+                <ion-icon
+                  name="person-circle-outline"
+                  class="text-2xl"
+                ></ion-icon>
               </button>
             </div>
           </div>
@@ -203,37 +206,44 @@
       style="top: 100%; right: 0"
     >
       <ng-container *ngIf="isValidUser; else notLoggedInDropdown">
-      <button
-        *ngIf="currentRoute !== '/favorites'"
-        class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
-        (click)="navigateTo('/favorites')"
-      >
-        <span class="ml-2">Favorites</span>
-        <ion-icon name="star-outline"></ion-icon>
-      </button>
-      <button
-        class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
-        (click)="logout()"
-      >
-        <span class="ml-2">Logout</span>
-        <ion-icon name="log-out-outline" class="ml-2"></ion-icon>
-      </button>
+        <button
+          *ngIf="currentRoute !== '/favorites'"
+          class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
+          (click)="navigateTo('/favorites')"
+        >
+          <span class="ml-2">Favorites</span>
+          <ion-icon name="star-outline"></ion-icon>
+        </button>
+        <button
+          *ngIf="currentRoute !== '/recomendations'"
+          class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
+          (click)="navigateTo('/recomendations')"
+        >
+          <span class="ml-2">Recomendations</span>
+        </button>
+        <button
+          class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
+          (click)="logout()"
+        >
+          <span class="ml-2">Logout</span>
+          <ion-icon name="log-out-outline" class="ml-2"></ion-icon>
+        </button>
       </ng-container>
       <ng-template #notLoggedInDropdown>
-      <button
-        class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
-        (click)="navigateTo('/login')"
-      >
-        <span class="ml-2">Login</span>
-        <ion-icon name="log-in-outline" class="ml-2"></ion-icon>
-      </button>
-      <button
-        class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
-        (click)="navigateTo('/register')"
-      >
-        <span class="ml-2">Register</span>
-        <ion-icon name="person-add-outline" class="ml-2"></ion-icon>
-      </button>
+        <button
+          class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
+          (click)="navigateTo('/login')"
+        >
+          <span class="ml-2">Login</span>
+          <ion-icon name="log-in-outline" class="ml-2"></ion-icon>
+        </button>
+        <button
+          class="text-[#2d4f40] text-base block px-4 py-2 items-center w-full hover:bg-customGreen hover:text-white hover:rounded-md"
+          (click)="navigateTo('/register')"
+        >
+          <span class="ml-2">Register</span>
+          <ion-icon name="person-add-outline" class="ml-2"></ion-icon>
+        </button>
       </ng-template>
     </div>
   </nav>
