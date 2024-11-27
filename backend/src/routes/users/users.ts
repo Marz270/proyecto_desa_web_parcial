@@ -492,7 +492,7 @@ const usersRoutes: FastifyPluginAsync = async (
         property_id: string;
       };
       const res = await query(
-        `DELETE FROM recomendada WHERE user_email= $1 and property_id = $2`,
+        `DELETE FROM recomendada WHERE user_id= $1 and property_id = $2`,
         [id, property_id]
       );
       if (res.rowCount === 0) {
